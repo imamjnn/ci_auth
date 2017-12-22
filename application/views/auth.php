@@ -15,10 +15,10 @@
 			          	<form name="userForm">
 							<md-input-container class="md-block" flex-gt-sm>
 		          				<label>Username</label>
-		          				<input md-maxlength="10" required name="username" ng-model="user.username" />
-					          	<div ng-messages="userForm.username.$error" ng-if="!showHints">
+		          				<input md-maxlength="13" required name="username" ng-model="user.username"/>
+					          	<div ng-messages="userForm.username.$error">
 						            <div ng-message="required">Username is required.</div>
-						            <div ng-message="md-maxlength">The username has to be less than 10 characters long.</div>
+						            <div ng-message="md-maxlength">Username is too short.</div>
 					          	</div>
 		        			</md-input-container>
 		        			<md-input-container class="md-block" flex-gt-sm>
@@ -38,7 +38,7 @@
 							<md-input-container class="md-block" flex-gt-sm>
 		          				<label>Username</label>
 		          				<input md-maxlength="10" required name="username" ng-model="user.username" />
-					          	<div ng-messages="userForm.username.$error" ng-if="!showHints">
+					          	<div ng-messages="userForm.username.$error">
 						            <div ng-message="required">Username is required.</div>
 						            <div ng-message="md-maxlength">The username has to be less than 10 characters long.</div>
 					          	</div>
@@ -79,11 +79,9 @@
 		  	$scope.title4 = 'Warn';
 		  	$scope.isDisabled = true;
 		  	$scope.user = {
-	      		name: "",
+	      		username: "",
 	      		password: "",
-	      		confirm_password: "",
-	      		social: "123456789",
-	     		phone: "N/A"
+	      		confirm_password: ""
     		};
 		})
 		.config(function($mdThemingProvider){
