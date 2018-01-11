@@ -8,6 +8,7 @@ class Auth extends CI_Controller {
 		$this->load->library('session');
 		$this->load->library('Theme', '', 'theme');
 		$this->load->model('User_model', 'User');
+		$this->load->model('Usersession_model', 'USession');
 	}
 	
 	public function index() {
@@ -24,38 +25,36 @@ class Auth extends CI_Controller {
 	}
 
 	public function check_login() {
-		$username = 'root';
-		$password = 'jnn007';
+		$decod = json_decode(file_get_contents("php://input"));
+		// $username = $decod->username;
+		// $password =	$decod->password;
 
-		//$key = $this->config->item('encryption_key');
-		//$hash_pass = hash('sha512', $key. $password);
+		$username = $this->input->post('username');
+		$password =	$this->input->post('password');
+
+		// encryp password
 		$hash_pass = password_hash($password, PASSWORD_BCRYPT, ['cost'=>12]);
-		$check_pass = password_verify($password, $hash_pass);
+
+		$user = $this->User->getBy(['username'=>$username]);
+		if($user)
+			$check_pass = password_verify($password, $user->password);
 		$check_user = $this->User->checkUsername($username);
-		//deb($check_user);
-		if($check_user == true){
-			$user = $this->User->getBy(['username'=>$username]);
+
+		if($check_user == true && $check_pass == true){
 			$sess_data = array('id'=>$user->id, 'username'=>$user->username);
 			$sess_key = $this->session->set_userdata($sess_data);
-			$check_pass = password_verify($password, $user->password);
-			if($check_pass == true){
-				$result['code'] = 200;
-				$result['type'] = 'success';
-			}else{
-				$result['code'] = 400;
-				$result['type'] = 'failed';
-				$result['message'] = 'Invalid username or password';
-			}
-			//deb($check_pass);
+			$token = password_hash($user->username, PASSWORD_BCRYPT, ['cost'=>10]);
+			$sess_save = $this->USession->create(['user'=>$user->id, 'token' => $token]);
 			
+			$result['status'] = 'success';
+			$result['message'] = 'Login success.';
+						
 		}else{
-			$result['code'] = 404;
-			$result['type'] = 'failed';
-			$result['message'] = 'Invalid username or password';
+			$result['status'] = 'failed';
+			$result['message'] = 'Invalid username or password.';
 		}
 
 		echo json_encode($result);
 
-		// deb($check_pass);
 	}
 }
