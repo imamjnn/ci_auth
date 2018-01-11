@@ -32,6 +32,8 @@ class Auth extends CI_Controller {
 		$username = $this->input->post('username');
 		$password =	$this->input->post('password');
 
+		$ip = $_SERVER['REMOTE_ADDR']?:($_SERVER['HTTP_X_FORWARDED_FOR']?:$_SERVER['HTTP_CLIENT_IP']);
+
 		// encryp password
 		$hash_pass = password_hash($password, PASSWORD_BCRYPT, ['cost'=>12]);
 
@@ -44,7 +46,7 @@ class Auth extends CI_Controller {
 			$sess_data = array('id'=>$user->id, 'username'=>$user->username);
 			$sess_key = $this->session->set_userdata($sess_data);
 			$token = password_hash($user->username, PASSWORD_BCRYPT, ['cost'=>10]);
-			$sess_save = $this->USession->create(['user'=>$user->id, 'token' => $token]);
+			$sess_save = $this->USession->create(['user'=>$user->id, 'token' => $token, 'ip'=>$ip]);
 			
 			$result['status'] = 'success';
 			$result['message'] = 'Login success.';
