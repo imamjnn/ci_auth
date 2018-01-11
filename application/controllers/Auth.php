@@ -17,11 +17,24 @@ class Auth extends CI_Controller {
 
 	public function login() {
 		$this->load->view('login');
-		deb($this->session->userdata());
+		$data = $this->session->userdata();
+		if($data){
+			echo 'belum login';
+		}else{
+			echo 'sudah login';
+		}
+		deb($data);
 	}
 
 	public function logout() {
-		$this->session->sess_destroy();
+		$data = $this->session->userdata();
+		deb($data);
+		if($data){
+			$this->USession->removeByCond(['token'=>$data['token']]);
+			$this->session->sess_destroy();
+		}else{
+			echo json_encode('ente belum login sudah logout aja');
+		}
 	}
 
 	public function check_login() {
@@ -43,9 +56,9 @@ class Auth extends CI_Controller {
 		$check_user = $this->User->checkUsername($username);
 
 		if($check_user == true && $check_pass == true){
-			$sess_data = array('id'=>$user->id, 'username'=>$user->username);
-			$sess_key = $this->session->set_userdata($sess_data);
 			$token = password_hash($user->username, PASSWORD_BCRYPT, ['cost'=>10]);
+			$sess_data = array('id'=>$user->id, 'username'=>$user->username, 'token'=>$token);
+			$sess_key = $this->session->set_userdata($sess_data);			
 			$sess_save = $this->USession->create(['user'=>$user->id, 'token' => $token, 'ip'=>$ip]);
 			
 			$result['status'] = 'success';
