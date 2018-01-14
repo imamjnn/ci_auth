@@ -35,7 +35,22 @@ class Auth extends CI_Controller {
 			$result['message'] = 'Logout success.';
 		}else{
 			$result['status'] = 'failed';
-			$result['message'] = 'Error, maybe you are not logged in.';
+			$result['message'] = 'Error Logout, maybe you are not logged in.';
+		}
+		echo json_encode($result);
+	}
+
+	public function native_logout($token) {
+		$check_token = $this->USession->checkToken($token);
+		//deb($check_token);
+		if($check_token){
+			$test = $this->USession->removeByCond(['token'=>$token]);
+			$this->session->sess_destroy();
+			$result['status'] = 'success';
+			$result['message'] = 'Logout success.';
+		}else{
+			$result['status'] = 'failed';
+			$result['message'] = 'Error Native Logout, maybe you are not logged in.';
 		}
 		echo json_encode($result);
 	}
@@ -61,12 +76,14 @@ class Auth extends CI_Controller {
 
 		if($check_user == true && $check_pass == true){
 			// create token
-			$token = password_hash($user->username, PASSWORD_BCRYPT, ['cost'=>10]);
+			$token = password_hash($user->username, PASSWORD_DEFAULT, ['cost'=>5]);
 			
 			$sess_data = array('id'=>$user->id, 'username'=>$user->username, 'token'=>$token);
 			$sess_key = $this->session->set_userdata($sess_data);			
 			$sess_save = $this->USession->create(['user'=>$user->id, 'token' => $token, 'ip'=>$ip]);
 			
+			$result['user'] = $user->id;
+			$result['token'] = $token;
 			$result['status'] = 'success';
 			$result['message'] = 'Login success.';
 						
@@ -76,6 +93,12 @@ class Auth extends CI_Controller {
 		}
 
 		echo json_encode($result);
+
+	}
+
+	public function user($id) {
+		$params['user'] = $this->User->get($id);
+		echo json_encode($params);
 
 	}
 }
